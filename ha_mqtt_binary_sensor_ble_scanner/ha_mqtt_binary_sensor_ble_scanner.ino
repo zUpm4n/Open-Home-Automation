@@ -159,6 +159,7 @@ void setup() {
     tmp_string_ble_address.toCharArray(tmp_ble_address, sizeof(tmp_ble_address));
     sprintf(tmp_mqttTopic, MQTT_SENSOR_TOPIC_TEMPLATE, MQTT_CLIENT_ID, LOCATION, tmp_ble_address);
     memcpy(BLETrackedDevices[i].mqttTopic, tmp_mqttTopic, sizeof(tmp_mqttTopic) + 1);
+    BLETrackedDevices[i].toNotify = true;
     DEBUG_PRINT(F("INFO: MQTT sensor topic: "));
     DEBUG_PRINTLN(BLETrackedDevices[i].mqttTopic);
   }
@@ -214,3 +215,54 @@ void loop() {
   mqttClient.disconnect();
   //WiFi.mode(WIFI_OFF);
 }
+
+/* config.h example content
+
+  ///////////////////////////////////////////////////////////////////////////
+  //  CONFIGURATION - SOFTWARE
+  ///////////////////////////////////////////////////////////////////////////
+  #define NB_OF_BLE_TRACKED_DEVICES 2
+  BLETrackedDevice BLETrackedDevices[NB_OF_BLE_TRACKED_DEVICES] = {
+  {"00:00:00:00:00:00", false, 0, false, {0}},
+  {"11:22:33:44:55:66", false, 0, false, {0}}
+  };
+
+  #define BLE_SCANNING_PERIOD   5
+  #define MAX_NON_ADV_PERIOD    5000
+
+  // Location of the BLE scanner
+  #define LOCATION "location"
+
+  // Debug output
+  #define DEBUG_SERIAL
+
+  // Wi-Fi credentials
+  #define WIFI_SSID     "xxxxxxxxxxxxxxxx"
+  #define WIFI_PASSWORD "xxxxxxxxxxxxxxxx"
+
+  // Over-the-Air update
+  // Not implemented yet
+  //#define OTA
+  //#define OTA_HOSTNAME  ""    // hostname esp8266-[ChipID] by default
+  //#define OTA_PASSWORD  ""    // no password by default
+  //#define OTA_PORT      8266  // port 8266 by default
+
+  // MQTT
+  #define MQTT_USERNAME     "xxxxxxxxxxxxxxxx"
+  #define MQTT_PASSWORD     "xxxxxxxxxxxxxxxx"
+  #define MQTT_SERVER       "192.168.5.149"
+  #define MQTT_SERVER_PORT  1883
+
+  #define MQTT_CONNECTION_TIMEOUT 5000 // [ms]
+
+  // MQTT availability: available/unavailable
+  #define MQTT_AVAILABILITY_TOPIC_TEMPLATE  "%s/availability"
+  // MQTT binary sensor: <CHIP_ID>/sensor/<LOCATION>/<BLE_ADDRESS>
+  #define MQTT_SENSOR_TOPIC_TEMPLATE        "%s/sensor/%s/%s/state"
+
+  #define MQTT_PAYLOAD_ON   "ON"
+  #define MQTT_PAYLOAD_OFF  "OFF"
+
+  #define MQTT_PAYLOAD_AVAILABLE    "online"
+  #define MQTT_PAYLOAD_UNAVAILABLE  "offline"
+*/
