@@ -79,8 +79,9 @@ typedef struct {
 #include <BLEDevice.h>
 #include <WiFi.h>
 #include <PubSubClient.h> // https://github.com/knolleary/pubsubclient
-#include "soc/timer_group_struct.h"
-#include "soc/timer_group_reg.h"
+//#include "soc/timer_group_struct.h"
+//#include "soc/timer_group_reg.h"
+#include "esp_system.h"
 
 #if defined(DEBUG_SERIAL)
 #define     DEBUG_PRINT(x)    Serial.print(x)
@@ -105,7 +106,7 @@ class MyAdvertisedDeviceCallbacks:
           if (!BLETrackedDevices[i].isDiscovered) {
             BLETrackedDevices[i].isDiscovered = true;
             BLETrackedDevices[i].lastDiscovery = millis();
-//            BLETrackedDevices[i].toNotify = true;
+            //            BLETrackedDevices[i].toNotify = true;
 
             DEBUG_PRINT(F("INFO: Tracked device newly discovered, Address: "));
             DEBUG_PRINT(advertisedDevice.getAddress().toString().c_str());
@@ -167,9 +168,9 @@ void connectToMQTT() {
   DEBUG_PRINTLN(MQTT_AVAILABILITY_TOPIC);
 
   if (!mqttClient.connected()) {
-    if (mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD, MQTT_AVAILABILITY_TOPIC, 0, false, MQTT_PAYLOAD_UNAVAILABLE)) {
+    if (mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD, MQTT_AVAILABILITY_TOPIC, 0, true, MQTT_PAYLOAD_UNAVAILABLE)) {
       DEBUG_PRINTLN(F("INFO: The client is successfully connected to the MQTT broker"));
-      publishToMQTT(MQTT_AVAILABILITY_TOPIC, MQTT_PAYLOAD_AVAILABLE, false);
+      publishToMQTT(MQTT_AVAILABILITY_TOPIC, MQTT_PAYLOAD_AVAILABLE, true);
     } else {
       DEBUG_PRINTLN(F("ERROR: The connection to the MQTT broker failed"));
       DEBUG_PRINT(F("INFO: MQTT username: "));
@@ -182,9 +183,15 @@ void connectToMQTT() {
   } else {
     if (lastMQTTConnection < millis()) {
       lastMQTTConnection = millis() + MQTT_CONNECTION_TIMEOUT;
-      publishToMQTT(MQTT_AVAILABILITY_TOPIC, MQTT_PAYLOAD_AVAILABLE, false);
+      publishToMQTT(MQTT_AVAILABILITY_TOPIC, MQTT_PAYLOAD_AVAILABLE, true);
     }
   }
+}
+
+hw_timer_t *timer = NULL;
+void IRAM_ATTR resetModule() {
+  ets_printf("INFO: Reboot\n");
+  esp_restart_noos();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -194,6 +201,12 @@ void setup() {
 #if defined(DEBUG_SERIAL)
   Serial.begin(115200);
 #endif
+  Serial.println("INFO: Running setup");
+
+  timer = timerBegin(0, 80, true); //timer 0, div 80
+  timerAttachInterrupt(timer, &resetModule, true);
+  timerAlarmWrite(timer, 10000000, false); //set time in us 10000000 = 10 sec
+  timerAlarmEnable(timer); //enable interrupt
 
   BLEDevice::init("");
   pBLEScan = BLEDevice::getScan();
@@ -213,22 +226,26 @@ void setup() {
     tmp_string_ble_address.toCharArray(tmp_ble_address, sizeof(tmp_ble_address));
     sprintf(tmp_mqttTopic, MQTT_SENSOR_TOPIC_TEMPLATE, MQTT_CLIENT_ID, LOCATION, tmp_ble_address);
     memcpy(BLETrackedDevices[i].mqttTopic, tmp_mqttTopic, sizeof(tmp_mqttTopic) + 1);
-//    BLETrackedDevices[i].toNotify = true;
+    //    BLETrackedDevices[i].toNotify = true;
     DEBUG_PRINT(F("INFO: MQTT sensor topic: "));
     DEBUG_PRINTLN(BLETrackedDevices[i].mqttTopic);
   }
 }
 
 void loop() {
-  TIMERG0.wdt_wprotect = TIMG_WDT_WKEY_VALUE;
-  TIMERG0.wdt_feed = 1;
-  TIMERG0.wdt_wprotect = 0;
+  //  TIMERG0.wdt_wprotect = TIMG_WDT_WKEY_VALUE;
+  //  TIMERG0.wdt_feed = 1;
+  //  TIMERG0.wdt_wprotect = 0;
+  timerWrite(timer, 0); //reset timer (feed watchdog)
+  long tme = millis();
+  Serial.println("INFO: Running mainloop");
+
   pBLEScan->start(BLE_SCANNING_PERIOD);
 
   for (uint8_t i = 0; i < NB_OF_BLE_TRACKED_DEVICES; i++) {
     if (BLETrackedDevices[i].isDiscovered == true && BLETrackedDevices[i].lastDiscovery + MAX_NON_ADV_PERIOD < millis()) {
       BLETrackedDevices[i].isDiscovered = false;
-//      BLETrackedDevices[i].toNotify = true;
+      //      BLETrackedDevices[i].toNotify = true;
     }
   }
 
@@ -248,23 +265,23 @@ void loop() {
     DEBUG_PRINTLN(WiFi.localIP());
   }
 
-  if (!mqttClient.connected()) {
+  while (!mqttClient.connected()) {
     DEBUG_PRINT(F("INFO: Connecting to MQTT broker: "));
     DEBUG_PRINTLN(MQTT_SERVER);
-    while (!mqttClient.connected()) {
-      connectToMQTT();
-    }
+    connectToMQTT();
+    delay(500);
+
   }
 
   for (uint8_t i = 0; i < NB_OF_BLE_TRACKED_DEVICES; i++) {
-//    if (BLETrackedDevices[i].toNotify) {
-      if (BLETrackedDevices[i].isDiscovered) {
-        publishToMQTT(BLETrackedDevices[i].mqttTopic, MQTT_PAYLOAD_ON, true);
-      } else {
-        publishToMQTT(BLETrackedDevices[i].mqttTopic, MQTT_PAYLOAD_OFF, true);
-      }
-//      BLETrackedDevices[i].toNotify = false;
-//    }
+    //    if (BLETrackedDevices[i].toNotify) {
+    if (BLETrackedDevices[i].isDiscovered) {
+      publishToMQTT(BLETrackedDevices[i].mqttTopic, MQTT_PAYLOAD_ON, true);
+    } else {
+      publishToMQTT(BLETrackedDevices[i].mqttTopic, MQTT_PAYLOAD_OFF, true);
+    }
+    //      BLETrackedDevices[i].toNotify = false;
+    //    }
   }
   //mqttClient.disconnect();
   //WiFi.mode(WIFI_OFF);
