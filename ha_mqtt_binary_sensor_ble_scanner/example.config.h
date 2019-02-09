@@ -1,23 +1,24 @@
 ///////////////////////////////////////////////////////////////////////////
 //  CONFIGURATION - SOFTWARE
 ///////////////////////////////////////////////////////////////////////////
-#define NB_OF_BLE_TRACKED_DEVICES 1
+#define NB_OF_BLE_TRACKED_DEVICES 2
 BLETrackedDevice BLETrackedDevices[NB_OF_BLE_TRACKED_DEVICES] = {
-  {"11:22:33:44:55:66", false, 0, false, {0}}
+  {"e0:e1:e2:e3:eb:6b", false, 0, false, {0}},
+  {"fc:58:fa:29:93:05", false, 0, false, {0}}
 };
 
 #define BLE_SCANNING_PERIOD   5
 #define MAX_NON_ADV_PERIOD    10000
 
 // Location of the BLE scanner
-#define LOCATION "bedroom"
+#define LOCATION "casa"
 
 // Debug output
-//#define DEBUG_SERIAL
+#define DEBUG_SERIAL
 
 // Wi-Fi credentials
-#define WIFI_SSID     ""
-#define WIFI_PASSWORD ""
+#define WIFI_SSID     "TP-LINK_243752"
+#define WIFI_PASSWORD "ssssssssssssssssss"
 
 // Over-the-Air update
 // Not implemented yet
@@ -27,9 +28,9 @@ BLETrackedDevice BLETrackedDevices[NB_OF_BLE_TRACKED_DEVICES] = {
 //#define OTA_PORT      8266  // port 8266 by default
 
 // MQTT
-#define MQTT_USERNAME     ""
-#define MQTT_PASSWORD     ""
-#define MQTT_SERVER       ""
+#define MQTT_USERNAME     "mqtt"
+#define MQTT_PASSWORD     "ssssssssssss"
+#define MQTT_SERVER       "192.168.5.149"
 #define MQTT_SERVER_PORT  1883
 
 #define MQTT_CONNECTION_TIMEOUT 5000 // [ms]
