@@ -3,8 +3,8 @@
 ///////////////////////////////////////////////////////////////////////////
 #define NB_OF_BLE_TRACKED_DEVICES 2
 BLETrackedDevice BLETrackedDevices[NB_OF_BLE_TRACKED_DEVICES] = {
-  {"e0:e1:e2:e3:eb:6b", false, 0, false, {0}},
-  {"fc:58:fa:29:93:05", false, 0, false, {0}}
+  {"e0:xx:xx:xx:xx:6b", false, 0, false, {0}},
+  {"fc:xx:xx:xx:xx:05", false, 0, false, {0}}
 };
 
 #define BLE_SCANNING_PERIOD   5
@@ -17,8 +17,8 @@ BLETrackedDevice BLETrackedDevices[NB_OF_BLE_TRACKED_DEVICES] = {
 #define DEBUG_SERIAL
 
 // Wi-Fi credentials
-#define WIFI_SSID     "TP-LINK_243752"
-#define WIFI_PASSWORD "ssssssssssssssssss"
+#define WIFI_SSID     "TP-LINK_123456"
+#define WIFI_PASSWORD "xxxxxxxxxxxxxx"
 
 // Over-the-Air update
 // Not implemented yet
@@ -29,8 +29,8 @@ BLETrackedDevice BLETrackedDevices[NB_OF_BLE_TRACKED_DEVICES] = {
 
 // MQTT
 #define MQTT_USERNAME     "mqtt"
-#define MQTT_PASSWORD     "ssssssssssss"
-#define MQTT_SERVER       "192.168.5.149"
+#define MQTT_PASSWORD     "xxxxxxxxxxxxxx"
+#define MQTT_SERVER       "192.168.x.xxx"
 #define MQTT_SERVER_PORT  1883
 
 #define MQTT_CONNECTION_TIMEOUT 5000 // [ms]
