@@ -70,12 +70,13 @@ typedef struct {
   // MQTT binary sensor: <CHIP_ID>/sensor/<LOCATION>/<BLE_ADDRESS>
   #define MQTT_SENSOR_TOPIC_TEMPLATE        "%s/sensor/%s/%s/state"
 
-  #define MQTT_PAYLOAD_ON   "ON"
-  #define MQTT_PAYLOAD_OFF  "OFF"
+  #define MQTT_PAYLOAD_ON   "home"
+  #define MQTT_PAYLOAD_OFF  "not_home"
 
   #define MQTT_PAYLOAD_AVAILABLE    "online"
   #define MQTT_PAYLOAD_UNAVAILABLE  "offline"
 */
+
 #include <BLEDevice.h>
 #include <WiFi.h>
 #include <PubSubClient.h> // https://github.com/knolleary/pubsubclient
