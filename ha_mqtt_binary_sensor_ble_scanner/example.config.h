@@ -1,14 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////
 //  CONFIGURATION - SOFTWARE
 ///////////////////////////////////////////////////////////////////////////
-#define NB_OF_BLE_TRACKED_DEVICES 2
-BLETrackedDevice BLETrackedDevices[NB_OF_BLE_TRACKED_DEVICES] = {
-  {"e0:xx:xx:xx:xx:6b", false, 0, false, {0}},
-  {"fc:xx:xx:xx:xx:05", false, 0, false, {0}}
-};
+uint8_t NB_OF_BLE_DISCOVERED_DEVICES = 0;
+BLETrackedDevice BLETrackedDevices[99] = {};
 
-#define BLE_SCANNING_PERIOD   5
-#define MAX_NON_ADV_PERIOD    10000
+#define BLE_SCANNING_PERIOD   10
+#define MAX_NON_ADV_PERIOD    120000
 
 // Location of the BLE scanner
 #define LOCATION "casa"
